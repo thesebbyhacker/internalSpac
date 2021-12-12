@@ -1,0 +1,7 @@
+0 = 
+1 = BARETTA M9
+2 = 9mm MAG 20/20
+3 = 9mm MAG 20/20
+4 = 9mm MAG 30/30
+5 = 9mm BULLETS
+6 = 

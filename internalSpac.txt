@@ -1,0 +1,346 @@
+map=========================================================================================
+satellite
+sewers
+highway
+subway
+concrete train lines
+sewage storage
+layers of city
+super old city under the new buildings
+old nuclear test site
+old nuclear storage underground
+big dam with ladders up mountains close by, locked with fences, if you go down the side of the dam there is an industrial tunnel you can go inside to secretly get to a new area
+big city with normal civilization and guards at the entrance
+
+
+disasters that can happen====================================================================
+world stops spinning
+space station crashes into earth
+
+
+lore=========================================================================================
+world is mechanically spinning with reaction wheels
+takes place in far future, after a futuristic civilization has collapsed
+Have a coin with a lot of value to certain factions call it state coin or something 
+Have encroaching danger tied to hordes 
+Undercity has people still living there, ancestors of the people who lived before everything was destroyed
+Early on you will find one of these ancient weapons with a cutscene of looking at it, opening the chamber and seeing a single bullet, after this you will never find another bullet for this weapon, you can sell this weapon for a ridiculous amount of money
+
+
+general======================================================================================
+have minimap to help people understand where they are
+minimap could change when you get into a room
+have big bosses travel all over the map
+have hordes of enemies
+Most weapons will be modern small arms. People know how to make these by finding remnants and reverse engineering them
+There will be a few "ancient" weapons that are actually futuristic, these cannot be reverse engineered and ammo can't even be made, so you might find one with one bullet in it. 
+Have a very small amount of ancient weapons with a tiny amount of ammo
+We need some kind of market for buying and selling
+Have cities despite the zombie horde, different parts of the world will be at drastically different organization levels 
+Have a c-130 with some working switches like panel lighting and battery
+abandoned train, overgrown 
+mega fauna yesss
+
+
+
+
+
+gameplay=====================================================================================
+make a full limb count for every enemy, and mc, so they can lose limbs
+steal dnd combat
+have rpg elements like strength, agility, etc
+have a pet with stats and all
+guns have to be loaded, mags have to be loaded, guns can jam
+make guns have mods you can add
+add skill specific to each weapon, weapon 
+Zombies disappear in the day and in certain places they horde at night they seek shelter during the day, so they flood into buildings and stuff
+If one zombie starts following you, any others near will also start tracking 
+Each horde will have one zombie who they all follow his movements maybe
+Hordes will only be one zombie when off screen then the others will spawn
+ai learning, If an enemy attack is effective, it is more likely to use that attack again
+have ranged and melee combat take place on the main world, still have dismemberment
+have combat work by locking on to an enemy and it will just dice roll to figure out hit or miss
+maybe have vats type deal where you choose where you are aiming
+have shotgun that can deal damage to enemies that are close together
+MAKE OPTION TO FREE SHOOT IN ONE OF THE 4 DIRECTIONS (MAYBE IDK)
+make a panel function where you can have it auto generate with the switches and dials you give it
+
+
+
+
+names========================================================================================
+space station called spac
+internal spac 
+
+
+
+unused code==================================================================================
+int combat(int type) //old combat, takes place in a menu
+{
+	inCombat = 1;
+	enemyNum = type;
+	combatRange = 0;
+	system("CLS");
+	txt("YOUR TURN", 205);
+	sym(10, 1);
+	if (mc.dexterity > ph.dexterity[type]) {
+		tx("YOU WIN INITIATIVE");
+		yourTurn = 1;
+	}
+	else {
+		tx("ENEMY WINS INITIATIVE");
+		yourTurn = 0;
+	}
+	sym(10, 1);
+	ans = _getch();
+	int flag = 1;
+	while (flag) {
+		if (yourTurn) {
+			sel("YOUR TURN", 8, "NO", "ATTACK", "DISENGAGE", "COVER", "HIDE", "SEARCH", "INVENTORY", "MOVE", "DE-ESCALATE");
+			if (chpicked == 1) {
+				attack();
+				yourTurn = 0;
+			}
+			else if (chpicked == 2) {
+				system("CLS");
+				header();
+				if (check("DEXTERITY", ph.dexterity[enemyNum], mc.mLeg)) {
+					tx("YOU RUN AWAY");
+					flag = 0;
+				}
+				ans = _getch();
+			}
+			else if (chpicked == 3) {
+				system("CLS");
+				header();
+				if (check("DEXTERITY", ph.dexterity[enemyNum], mc.mLeg)) {
+					tx("YOU TAKE COVER");
+				}
+				inCover[0] = 1;
+				yourTurn = 0;
+				ans = _getch();
+			}
+			else if (chpicked == 4) {
+				system("CLS");
+				header();
+				if (check("DEXTERITY", ph.dexterity[enemyNum] + 2, mc.mLeg)) {
+					tx("YOU HIDE");
+				}
+				hidden[0] = 1;
+				yourTurn = 0;
+				ans = _getch();
+			}
+			else if (chpicked == 5) {
+				search();
+			}
+			else if (chpicked == 6) {
+				inv();
+			}
+			else if (chpicked == 7) {
+				combatMove();
+			}
+			else if (chpicked == 8) {
+				
+			}
+		}
+		else {
+			////////later put more options here like an ai type deal make it good 
+			enemyAttack();
+			yourTurn = 1;
+		}
+		if (ph.hp[type] < 1) {
+			tx("YOU WIN");
+			ans = _getch();
+			flag = 0;
+		}
+		else if (mc.hp < 1) {
+			tx("YOU DIED");
+			ans = _getch();
+			flag = 0;
+		}
+	}
+	inCombat = 0;
+	return 0;
+}
+int attack() 
+{ //use your weapon to deal damage, anything else will be in weapon function
+	system("CLS");
+	header();
+	txt("YOUR TURN", 205);
+	if (combatRange == optimalRange[gunNum]) {
+		tx("YOU PULL THE TRIGGER");
+		if (bulletInChamber[gunNum] == 1 && !jammed[gunNum]) {
+			for (int p = 0; bulletInChamber[gunNum] > 0 && p != shootTime[gunNum]; p++) {
+				if (bulletsLeft[ammo[gunNum]]) {
+					bulletsLeft[ammo[gunNum]]--;
+				}
+				else {
+					bulletInChamber[ammo[gunNum]] = 0;
+				}
+			}
+			if (r(1, 100) < reliability[gunNum]) {
+				string seb;
+				for (int k = 1; k <= shootTime[gunNum]; k++) {
+					system("CLS");
+					header();
+					seb = "FIRING ROUND# " + to_string(k);
+					tx(seb);
+					if (check("DEXTERITY", accurracy[gunNum] - inCover[1], mc.bd[mc.mHand])) {
+						
+						seb = "YOU HIT DEALING " + to_string(damage[gunNum]) + " DAMAGE";
+						tx(seb);
+						ph.hp[enemyNum] -= damage[gunNum];
+						if (r(1, dismembermentChance) == 1) {
+							seb = "BODY PART INJURED";
+							ph.bd[enemyNum][r(0,5)]--;
+							tx(seb);
+						}
+					}
+					else {
+						tx("YOU MISS");
+					}
+					if (k != shootTime[gunNum]) ans = _getch();
+				}
+			}
+			else {
+				tx("GUN JAMS");
+				jammed[gunNum] = 1;
+			}
+		}
+		else {
+			tx("CLICK");
+		}
+	}
+	else {
+		system("CLS");
+		header();
+		tx("NON OPTIMAL RANGE");
+	}
+	ans = _getch();
+	return 0;
+}
+int enemyAttack()
+{
+	system("CLS");
+	txt("ENEMY TURN", 205);
+	header();
+	if (combatRange == optimalRange[ph.wpn[enemyNum]]) {
+		tx("THEY PULL THE TRIGGER");
+		if (r(1, 100) < reliability[ph.wpn[enemyNum]]) {
+			if (check("DEXTERITY", accurracy[gunNum], mc.bd[mc.mHand])) {
+				string sebster = "THEY HIT DEALING " + to_string(damage[ph.wpn[enemyNum]]) + " DAMAGE";
+				tx(sebster);
+				mc.hp -= damage[ph.wpn[enemyNum]];
+				bulletsLeft[ph.wpn[enemyNum]] --;
+			}
+			else {
+				tx("THEY MISS");
+			}
+		}
+		else {
+			tx("GUN JAMS");
+			jammed[ph.wpn[enemyNum]] = 1;
+		}
+	}
+	else {
+		tx("NON OPTIMAL RANGE");
+	}
+	ans = _getch();
+	return 0;
+}
+int useWeapon()
+{
+	sel("WEAPON", 1, "YES", "EJECT ROUND");
+	if (chpicked == 1) {
+		if (bulletsLeft[gunNum]) {
+			bulletsLeft[gunNum]--;
+			bulletInChamber[gunNum] = 1;
+		}
+		else {
+			bulletInChamber[gunNum] = 0;
+		}
+		jammed[gunNum] = 0;
+		yourTurn = 0;
+	}
+	return 0;
+}
+int combatMove()
+{
+	sel("MOVE", 2, "YES", "MOVE CLOSER", "MOVE FARTHER AWAY");
+	if (chpicked == 1) {
+		if (check("DEXTERITY", ph.dexterity[enemyNum], mc.mLeg)) {
+			tx("CLOSED DISTANCE");
+			if (combatRange > 0) combatRange--;
+		}
+	}
+	else if (chpicked == 2) {
+		if (check("DEXTERITY", ph.dexterity[enemyNum], mc.mLeg)) {
+			tx("WIDENED DISTANCE");
+			if (combatRange < 2) combatRange++;
+		}
+	}
+	yourTurn = 0;
+	ans = _getch();
+	return 0;
+}
+int search()
+{
+	int gndItmCnt = 0;
+	if (check("WISDOM", mc.lvl, mc.mHand)) {
+		for (int u = 0; u <= 10; u++) {
+			if (gndItm[u]) {
+				gndItmCnt++;
+			}
+		}
+	}
+	else {
+		ans = _getch();
+	}
+	return 0;
+}
+
+
+
+changelog==================================================================================
+
+MADE THE DISPLAY SIZE CHANGEABLE
+MADE A COUT FUNCTION FOR CENTERING TEXT
+MADE OPTIONS SCREEN
+MADE TELEPORT COMMAND
+MADE DEBUGGING OVERLAY
+FIXED COORDS
+MADE KEYPRESS FUNCTION
+FIXED DISPLAY PROBLEM, BUT X AND Y STILL DRIFT UNSURE IF THIS MATTERS
+MADE RPG STATS
+MADE HUD
+MADE DYNAMIC HEALTH BAR
+MADE ENEMIES ON DISPLAY SCREEN
+MADE SAVE AND LOAD FUNCTION
+MADE OPTION TO CREATE YOUR OWN CHARACTER SKILLS
+MADE SKILLCHECK FUNCTION
+MADE SELECT FUNCTION
+MADE COMBAT BASICS (ATTACK AND ENEMY ATTACK)
+MADE INVENTORY AND FILTERED INVENTORY
+MAGS NOW SHOW HOW MANY BULLETS THEY HAVE IN INVENTORY BUT IT NEEDS TO BE UPDATED AFTER RELOAD OR ADDING BULLETS
+STUFF IS WORKING
+YOU CAN NOW EQUIP YOUR WEAPONS WOOOOOOOOOO
+ADDED BULLETS
+MADE SHOOTING CHOOSE CLOSER ENEMIES FIRST
+MADE VATS
+can eject rounds now
+inventory sorting with left and right keys
+mag don't show up if attached
+made reloading times slower
+made loading mags take time
+made shooting visuals
+made missing a thing
+can't do things while reloading
+added visuals
+made killing someone flash a screen
+stopped vats from shooting a dead enemy
+made secondary (e) go in and out of inv
+fixed bug for world generation, for loop went higher then array
+simplified filterinv to be less stupid, filtering has a variable now and less code in inv, mostly in filterinv now
+made floor items
+made floor item visuals in dsplybd
+made an item logger that writes the c2 number along with the item's full name into item.txt
