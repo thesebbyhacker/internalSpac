@@ -8,6 +8,7 @@
 #include <limits>
 
 
+
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////STUFF TO ADD
@@ -24,6 +25,7 @@ get some dismemberment
 make enemies not idiots
 make function for trains
 make a controls page in game once controls are finalized
+try and add sound
 
 */
 ///////////////////////////////////////////////////////////////////////STUFF ADDED
@@ -345,6 +347,7 @@ enemy ph; //enemies
 /////////////////////////////////////////////////////////////////////////FUNCTIONS
 int init()
 {
+	//cout << '\a';
 	xmax = 60;
 	ymax = 24; //display resolution
 

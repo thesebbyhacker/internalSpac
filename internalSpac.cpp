@@ -2,13 +2,14 @@
 //
 
 #include <iostream>
-#include "spacData.h"
 #include <string>
 #include <conio.h>
 #include <cstring>
 #include <time.h>
 #include <fstream>
 #include <limits>
+#include "spacData.h"
+
 
 
 
