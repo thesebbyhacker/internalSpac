@@ -23,6 +23,7 @@ all skills out of 100 I think
 get some dismemberment
 make enemies not idiots
 make function for trains
+make a controls page in game once controls are finalized
 
 */
 ///////////////////////////////////////////////////////////////////////STUFF ADDED
@@ -112,6 +113,7 @@ void createCharacter();
 void viewCharacter();
 void saveGame();
 void loadGame();
+void controls();
 
 int sel(string top, int chnum, string exitable, string ch1 = "", string ch2 = "", string ch3 = "", string ch4 = "", string ch5 = "", string ch6 = "", string ch7 = "", string ch8 = "", string ch9 = "", string ch10 = "");
 //makes a menu you can select different things in, just leave the strings your not gonna use empty
@@ -225,6 +227,11 @@ int typeMax = 3; //types of items for filtering
 
 int chpicked = 0; //returned from sel, says what choice was picked
 int locs = 1;
+
+
+//ALL KEYS
+string keys[256] {};
+
 
 
 //////////////////////////////////////////////////////////////////////ITEM VARS
@@ -1473,7 +1480,7 @@ int menu()
 	int loc = 1;
 	int flag = 1;
 	int select[11];
-	while (sel("MENU", 10, "YES", "INVENTORY", "SET DISPLAY SIZE", "TP HOME", "TELEPORT", "CREATE CHARACTER", "VIEW CHARACTER", "SAVE", "LOAD", "PLACEHOLDER", "QUIT")) {
+	while (sel("MENU", 10, "YES", "INVENTORY", "SET DISPLAY SIZE", "TP HOME", "TELEPORT", "CREATE CHARACTER", "VIEW CHARACTER", "SAVE", "LOAD", "CONTROLS", "QUIT")) {
 		
 		if (chpicked == 1) {
 			inv();
@@ -1499,7 +1506,9 @@ int menu()
 		else if (chpicked == 8) {
 			loadGame();
 		}
-		
+		else if (chpicked == 9) {
+			controls();
+		}
 		else if (chpicked == 10) {
 			exit(0);
 		}
@@ -1684,6 +1693,12 @@ void loadGame()
 	sym(10, 1);
 	ans = _getch();
 }
+void controls()
+{
+	system("CLS");
+	txt("CONTROLS", 205);
+	sym(10, 2);
+}
 
 
 
@@ -1738,7 +1753,7 @@ int kp(const char* key)
 		}
 	}
 	else if (key == "select") {
-		if (ans == 13) {
+		if (ans == 13 || ans == 32) {
 			return 1;
 		}
 		else {
