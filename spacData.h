@@ -687,6 +687,7 @@ int display()
 			}
 			else if (kp("reload") && gunNum) {
 				update();
+				PlaySound(TEXT("click1.wav"), NULL, SND_ASYNC); //plays clickiick noise
 				int flag4 = 1;
 				int temp = 0;
 				while (flag4 && temp <= 100) {
@@ -705,6 +706,7 @@ int display()
 				}
 			}
 			else if (kp("eject") && !reloadNum) {
+				PlaySound(TEXT("click1.wav"), NULL, SND_ASYNC); //plays clickiick noise
 				if (bulletsLeft[ammo[gunNum]]) {
 					bulletsLeft[ammo[gunNum]]--;
 					bulletInChamber[gunNum] = 1;
@@ -2269,6 +2271,7 @@ int initBullet(int amount1, string ammoType1, int owned1) {
 	return 0;
 }
 void musicPlayer() //play music
+//make this have a global variable for the state it is in then depending on that do different beeps
 {
 	int pplag = 1;
 	while (pplag) {
