@@ -1,6 +1,8 @@
 // internalSpac.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
+#include <Windows.h>
+#include <thread>
 #include <iostream>
 #include <string>
 #include <conio.h>

@@ -1,4 +1,6 @@
 #pragma once
+#include <Windows.h>
+#include <thread>
 #include <iostream>
 #include <conio.h>
 #include <cstring>
@@ -8,7 +10,7 @@
 #include <limits>
 
 
-
+#undef max
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////STUFF TO ADD
@@ -143,6 +145,8 @@ int save();
 int load();
 int itemLogger(); //logs all loaded items into a txt file
 fstream& gotoLine(fstream& file, unsigned int num);
+
+void musicPlayer(); //plays music for now
 
 ///////////////////////////////////////////////////////////////////////GLOBAL VARS
 
@@ -347,6 +351,9 @@ enemy ph; //enemies
 /////////////////////////////////////////////////////////////////////////FUNCTIONS
 int init()
 {
+	//music player
+	thread msc(musicPlayer);
+
 	//cout << '\a';
 	xmax = 60;
 	ymax = 24; //display resolution
@@ -438,6 +445,15 @@ int init()
 	itemLogger(); //logs items into txt file
 	
 	drange = xmax + ymax + 100;
+
+	//noises
+	/*
+	Beep(440, 100);
+	Beep(500, 100);
+	Beep(550, 100);
+	*/
+	PlaySound(TEXT("random.wav"), NULL, SND_ASYNC);
+
 	display();
 	return 0;
 }
@@ -1009,6 +1025,7 @@ int invChose()
 int fire() //shoots the thing
 {
 	endist();
+	PlaySound(TEXT("boom1.wav"), NULL, SND_ASYNC); //plays gunshot
 	firing = 1;
 	if (bulletsLeft[ammo[gunNum]]) {
 		bulletsLeft[ammo[gunNum]] -= 1;
@@ -2250,4 +2267,12 @@ int initBullet(int amount1, string ammoType1, int owned1) {
 	fName[c2] = ammoType[c2] + " BULLETS";
 	c2++;
 	return 0;
+}
+void musicPlayer() //play music
+{
+	int pplag = 1;
+	while (pplag) {
+		Beep(r(190, 600), r(10, 1000));
+		Sleep(r(0, 50000));
+	}
 }

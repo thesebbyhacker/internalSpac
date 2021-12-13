@@ -345,3 +345,5 @@ made floor items
 made floor item visuals in dsplybd
 made an item logger that writes the c2 number along with the item's full name into item.
 made space key select things in inventory
+made sounds in particular a thread for background beeps
+made boom wav for gunshots
