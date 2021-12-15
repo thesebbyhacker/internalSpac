@@ -11,6 +11,7 @@
 
 
 #undef max
+HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////STUFF TO ADD
@@ -81,6 +82,7 @@ int initBullet(
 
 int display(); //displays the world
 int header(); //this will show everything you need during combat
+void loadScreen(); //shows ascii art with the words loading 
 
 int inv(); //inventory
 int filterInv(string itype1);//inventory with a filter
@@ -125,7 +127,7 @@ int sel(string top, int chnum, string exitable, string ch1 = "", string ch2 = ""
 
 int sym(int i, int o); //prints ascii
 int tx(string i); //prints text centered
-int txt(string i, int o); //prints centered text with more options
+int txt(string i, int o, int colour = 7); //prints centered text with more options
 int r(int lower, int upper); //prints a number in a range
 
 int loc(int q, int w); //checks where you are globally
@@ -351,19 +353,27 @@ enemy ph; //enemies
 /////////////////////////////////////////////////////////////////////////FUNCTIONS
 int init()
 {
-	//music player
-	thread msc(musicPlayer);
-
-	//cout << '\a';
+	
 	xmax = 60;
-	ymax = 24; //display resolution
+	ymax = 24; //display resolution needed before visuals
 
 	//loading visuals
+	/*
 	sym(219, xmax * 2);
 	sym(10, ymax / 2);
-	tx("LOADING");
+	txt("LOADING", 32, 7);
 	sym(10, (ymax / 2) - 2);
 	sym(219, xmax * 2);
+	*/
+	loadScreen();
+	//ans = _getch();
+	Beep(500, 400); //beginning loading tone5
+
+	//music player
+	//thread msc(musicPlayer);
+
+	//cout << '\a';
+	
 
 
 	for (int u = 0; u < 100; u++) {
@@ -447,12 +457,12 @@ int init()
 	drange = xmax + ymax + 100;
 
 	//noises
-	/*
-	Beep(440, 100);
-	Beep(500, 100);
-	Beep(550, 100);
-	*/
-	PlaySound(TEXT("random.wav"), NULL, SND_ASYNC);
+	
+	Beep(440, 400);
+	Beep(500, 200);
+	Beep(550, 200);
+	
+	//PlaySound(TEXT("random.wav"), NULL, SND_ASYNC);
 
 	display();
 	return 0;
@@ -798,6 +808,16 @@ int header()
 	//sym(196, xmax * 2);
 	//sym(10, 1);
 	return 0;
+}
+void loadScreen()
+{
+	string esbbbb = "load" + to_string(r(1, 10)) + ".txt";
+	std::ifstream f(esbbbb);
+
+	if (f.is_open())
+		std::cout << f.rdbuf();
+	
+
 }
 int invHeader()
 {
@@ -1502,7 +1522,7 @@ int menu()
 	int loc = 1;
 	int flag = 1;
 	int select[11];
-	while (sel("MENU", 10, "YES", "INVENTORY", "SET DISPLAY SIZE", "TP HOME", "TELEPORT", "CREATE CHARACTER", "VIEW CHARACTER", "SAVE", "LOAD", "CONTROLS", "QUIT")) {
+	while (sel("MENU", 10, "YES", "INVENTORY", "SET DISPLAY SIZE (DEPRECIATED)", "TP HOME", "TELEPORT", "CREATE CHARACTER", "VIEW CHARACTER", "SAVE", "LOAD", "CONTROLS", "QUIT")) {
 		
 		if (chpicked == 1) {
 			inv();
@@ -2070,13 +2090,15 @@ int tx(string i)
 	sym(10, 1);
 	return 0;
 }
-int txt(string i, int o)
+int txt(string i, int o, int colour)
 {
+	SetConsoleTextAttribute(hConsole, colour);
 	int p = (xmax - (i.length()) / 2);
 	sym(o, p);
 	cout << i;
 	sym(o, xmax * 2 - p - i.length());
 	sym(10, 1);
+	SetConsoleTextAttribute(hConsole, 7);
 	return 0;
 }
 
