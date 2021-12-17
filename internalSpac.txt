@@ -301,6 +301,22 @@ int search()
 
 
 
+for moving zombies towards noise use this
+if(elocy > locy){
+					elocy--;
+				}
+				if(elocy < locy){
+					elocy++;
+				}
+				if(elocx > locx){
+					elocx--;
+				}
+				if(elocx < locx){
+					elocx++;
+				}
+and then make a random chance for them to go a random direction to help it look natural
+
+
 changelog==================================================================================
 
 MADE THE DISPLAY SIZE CHANGEABLE
@@ -347,3 +363,13 @@ made an item logger that writes the c2 number along with the item's full name in
 made space key select things in inventory
 made sounds in particular a thread for background beeps
 made boom wav for gunshots
+made loading screens and random loading screen select
+added colour option to int txt()
+
+added menu noise
+changed item pickup noise
+made death screen
+removed "ENTERING COMBAT" dialogue
+added damage flash
+made enemies do damage if they are close to the player
+/made zombies attracted to noise

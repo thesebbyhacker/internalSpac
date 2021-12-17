@@ -28,8 +28,9 @@ get some dismemberment
 make enemies not idiots
 make function for trains
 make a controls page in game once controls are finalized
-try and add sound
-
+random generated sentences
+make loot pools for enemy types
+make zombies attracted to noise
 */
 ///////////////////////////////////////////////////////////////////////STUFF ADDED
 /*
@@ -149,6 +150,7 @@ int itemLogger(); //logs all loaded items into a txt file
 fstream& gotoLine(fstream& file, unsigned int num);
 
 void musicPlayer(); //plays music for now
+void deathlol(); //death screen
 
 ///////////////////////////////////////////////////////////////////////GLOBAL VARS
 
@@ -240,6 +242,9 @@ int locs = 1;
 //ALL KEYS
 string keys[256] {};
 
+//DUMB ONE TIME USE VARIABLE
+int playerDied = 0;
+
 
 
 //////////////////////////////////////////////////////////////////////ITEM VARS
@@ -283,13 +288,13 @@ int moveUpdate = 1; //if 0 no enemies move
 struct player
 {
 	//names
-	string fName; //first name
-	string lName; //last name
-	string nName; //nickname
+	string fName = ""; //first name
+	string lName = ""; //last name
+	string nName = ""; //nickname
 	//health
-	int hp;
-	int maxhp;
-	int bd[10]; //2 is healthy, 1 is injured 0 is gone 
+	int hp = 0;
+	int maxhp = 0;
+	int bd[10] { 0 }; //2 is healthy, 1 is injured 0 is gone 
 	// [0] head
 	// [1] torso
 	// [2] left arm
@@ -297,26 +302,26 @@ struct player
 	// [4] left leg
 	// [5] right leg
 	//skills
-	int lvl;
-	int strength;
-	int dexterity;
-	int intelligence;
-	int wisdom;
-	int charisma;
-	int mHand; //dominant hand for skill checks, 2 is left hand 3 is right hand
-	int mLeg; //dominant leg i know this sounds dumb but its for running away and stuff
+	int lvl = 0;
+	int strength = 0;
+	int dexterity = 0;
+	int intelligence = 0;
+	int wisdom = 0;
+	int charisma = 0;
+	int mHand = 0; //dominant hand for skill checks, 2 is left hand 3 is right hand
+	int mLeg = 0; //dominant leg i know this sounds dumb but its for running away and stuff
 	//location
-	int x;
-	int y;
+	int x = 0;
+	int y = 0;
 };
 struct enemy
 {
 	//names
-	string name[100]; //npc name
+	string name[100] = { "" }; //npc name
 	//health
-	int hp[100];
-	int maxhp[100];
-	int bd[100][10]; //2 is healthy, 1 is injured 0 is gone 
+	int hp[100]{ 0 };
+	int maxhp[100]{ 0 };
+	int bd[100][10]{ 0 }; //2 is healthy, 1 is injured 0 is gone 
 	// [0] head
 	// [1] torso
 	// [2] left arm
@@ -324,21 +329,21 @@ struct enemy
 	// [4] left leg
 	// [5] right leg
 	//skills
-	int lvl[100];
-	int strength[100];
-	int dexterity[100];
-	int intelligence[100];
-	int wisdom[100];
-	int charisma[100];
-	int mHand[100];
+	int lvl[100]{ 0 };
+	int strength[100]{ 0 };
+	int dexterity[100]{ 0 };
+	int intelligence[100]{ 0 };
+	int wisdom[100]{ 0 };
+	int charisma[100]{ 0 };
+	int mHand[100]{ 0 };
 	//possessions
-	int wpn[100];
+	int wpn[100]{ 0 };
 	//location
-	int x[100];
-	int y[100];
-	int di[100]; //distance from player
-	int av[100]; //0 if off screen, 1 if on screen, 2 if in range
-	int pr[100]; //this is priority as in how close to player
+	int x[100]{ 0 };
+	int y[100]{ 0 };
+	int di[100]{ 0 }; //distance from player
+	int av[100]{ 0 }; //0 if off screen, 1 if on screen, 2 if in range
+	int pr[100]{ 0 }; //this is priority as in how close to player
 };
 
 //player sf{ "sebastian", "fournier", "sebbie", 20, 20, 10, 10, 10, 10, 10 };
@@ -367,7 +372,7 @@ int init()
 	*/
 	loadScreen();
 	//ans = _getch();
-	Beep(500, 400); //beginning loading tone5
+	Beep(440, 500); //beginning loading tone5
 
 	//music player
 	//thread msc(musicPlayer);
@@ -458,9 +463,9 @@ int init()
 
 	//noises
 	
-	Beep(440, 400);
-	Beep(500, 200);
-	Beep(550, 200);
+	Beep(440, 100);
+	Beep(500, 100);
+	Beep(550, 100);
 	
 	//PlaySound(TEXT("random.wav"), NULL, SND_ASYNC);
 
@@ -474,6 +479,9 @@ int display()
 	
 	int flag = 1;
 	while (flag) {
+		if (mc.hp <= 0) {
+			deathlol();
+		}
 		if (killed) {
 			int toimp;
 			system("CLS");
@@ -494,13 +502,17 @@ int display()
 		else {
 			txt("WORLD", 205);
 		}
-		
+		int didPlayerGetInjured = 0;
 		sym(10, 1);
 		if (!invats) {
 			for (int w = 0; w <= cn; w++) { 
 				//updates enemies
 				if (ph.hp[w] > 0) {
 					moveC(w);
+					if ((ph.x[w] - mc.x <= 1) && (ph.y[w] - mc.y <= 1)) {
+						mc.hp -= 5;
+						didPlayerGetInjured = 1;
+					}
 				}
 			}
 			//reloads
@@ -509,6 +521,22 @@ int display()
 		else {
 			endist();
 		}
+
+		if (didPlayerGetInjured) {
+			int toimp;
+			system("CLS");
+			for (int tomp = ymax + 5; tomp >= 1; tomp--) {
+				for (int timp = 0; timp < xmax; timp++) {
+					toimp = r(0, 2);
+					sym(32, toimp);
+					sym(206, (2 - toimp));
+				}
+				sym(10, 1);
+			}
+			didPlayerGetInjured = 0;
+		}
+		system("CLS");
+
 		if (firing) {
 			//coords for character "BANG"
 			int xcord1 = (mc.x - 2);
@@ -602,22 +630,24 @@ int display()
 			}
 		}
 		if (goToCombat) {
-			tx("ENTERING COMBAT");
-			sym(10, 1);
+			//tx("ENTERING COMBAT");
+			//sym(10, 1);
 			goToCombat = 0;
 		}
 		ennum = 0; //stop auto shooting dead targets
 		fflush(stdin);
-		ans = _getch();
-		if (invats) {
+		if (!playerDied) {
+			ans = _getch();
+		}
+		if (invats && !playerDied) {
 			if (kp("quit")) {
 				flag = 0;
 			}
 			if (kp("debug")) {
-				debug = !debug;
+				debug = ~debug;
 			}
 			if (kp("details")) {
-				details = !details;
+				details = ~details;
 			}
 			if (kp("escape") || kp("vats")) {
 				invats = 0;
@@ -663,15 +693,15 @@ int display()
 				fire();
 			}
 		}
-		else {
+		else if (!invats && !playerDied) {
 			if (kp("quit")) {
 				flag = 0;
 			}
 			if (kp("debug")) {
-				debug = !debug;
+				debug = ~debug;
 			}
 			if (kp("details")) {
-				details = !details;
+				details = ~details;
 			}
 			if (kp("escape")) {
 				menu();
@@ -732,10 +762,14 @@ int display()
 			}
 			else if (kp("interact")) {
 				if (i[mc.x][mc.y]) {
+					PlaySound(TEXT("tonehi.wav"), NULL, SND_ASYNC);
 					owned[i[mc.x][mc.y]] = 1;
 					i[mc.x][mc.y] = 0;
 				}
 			}
+		}
+		else {
+			flag = 0;
 		}
 	}
 	return 0;
@@ -749,6 +783,7 @@ int header()
 	}
 
 	//player health
+
 	if (mc.hp < mc.maxhp) {
 		float num = (float)mc.hp / mc.maxhp;
 		int relativeHealth = (float)num * xmax * 2;
@@ -757,7 +792,7 @@ int header()
 		sym(176, (xmax * 2 - relativeHealth) - (xmax - relativeHealth / 2));
 		sym(10, 1);
 	}
-	
+
 	//enemy health
 	//float num1 = (float)ph.hp[enemyNum] / ph.maxhp[enemyNum];
 	//int relativeHealth1 = (float)num1 * xmax * 2;
@@ -768,7 +803,7 @@ int header()
 
 	string ab1; //bullet in chamber or no
 	string ab2; //combat range
-	
+
 	if (jammed[gunNum]) {
 		ab1 = "JAMMED";
 	}
@@ -807,6 +842,8 @@ int header()
 	//tx(ballHair);
 	//sym(196, xmax * 2);
 	//sym(10, 1);
+	
+	
 	return 0;
 }
 void loadScreen()
@@ -1272,6 +1309,7 @@ int dsplyE()
 			}
 			i = p;
 		}
+
 	}
 	if (!debug) {
 		if (u == 3) {
@@ -1284,7 +1322,7 @@ int dsplyE()
 			return 1;
 		}
 		else if (u == 2) {
-			cout << "@@";
+			cout << "XX";
 			return 1;
 		}
 		else {
@@ -1301,7 +1339,7 @@ int dsplyE()
 			return 1;
 		}
 		else if (u == 2) {
-			cout << "@@";
+			cout << "XX";
 			return 1;
 		}
 
@@ -1309,16 +1347,16 @@ int dsplyE()
 			return 0;
 		}
 	}
-	
+
 }
 
 
 
 int check(string skill, int score, int bdypt)
 {
-	int passed;
-	int mod;
-	int x;
+	int passed = 0;
+	int mod = 0;
+	int x = 0;
 	string answer;
 	if (!bdypt) {
 		passed = 0;
@@ -1453,6 +1491,7 @@ int sel(string top, int chnum, string exitable, string ch1, string ch2, string c
 		}
 		fflush(stdin);
 		ans = _getch();
+		PlaySound(TEXT("menu1.wav"), NULL, SND_ASYNC);
 		if (kp("escape") || kp("quit") || (kp("secondary") && inInventory)) {
 			if (exitable == "YES") {
 				filterNorm = 0;
@@ -1497,10 +1536,10 @@ int sel(string top, int chnum, string exitable, string ch1, string ch2, string c
 			flag = 0;
 		}
 		else if (kp("debug")) {
-			debug = !debug;
+			debug = ~debug;
 		}
 		else if (kp("details")) {
-			details = !details;
+			details = ~details;
 		}
 	}
 	if (escaped) {
@@ -2300,4 +2339,20 @@ void musicPlayer() //play music
 		Beep(r(190, 600), r(10, 1000));
 		Sleep(r(0, 50000));
 	}
+}
+void deathlol()
+{
+	system("CLS");
+	Sleep(3000);
+	std::ifstream f("end1.txt");
+
+	if (f.is_open())
+		std::cout << f.rdbuf();
+	Sleep(100);
+	system("CLS");
+	sym(10, 14);
+	tx("YOU DIED");
+	sym(10, 10);
+	Sleep(10000);
+	playerDied = 1;
 }
