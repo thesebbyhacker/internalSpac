@@ -30,7 +30,8 @@ make function for trains
 make a controls page in game once controls are finalized
 random generated sentences
 make loot pools for enemy types
-make zombies attracted to noise
+make proper load function after everything else is done, should include tick variable
+make death screen have load option
 */
 ///////////////////////////////////////////////////////////////////////STUFF ADDED
 /*
@@ -175,6 +176,8 @@ int c[xborder + 1][yborder + 1]; //global collision map
 int b[xborder + 1][yborder + 1]; //global building map
 int i[xborder + 1][yborder + 1]; //global item map
 
+int tick = 0; //this counts up every tick in the game
+
 
 
 int xloc;
@@ -219,6 +222,11 @@ int killed = 0; //just killed
 int inCover[] = { 0,0 }; //[0] is mc, [1] is enemy
 int hidden[] = { 0,0 }; //^^
 
+int sndx = 0;
+int sndy = 0; //where last sound was
+int tickWhenNoise = 0; //when last sound was
+
+
 //INIT
 int cn = 1;
 int c2 = 1; //for initFirearm
@@ -244,7 +252,7 @@ string keys[256] {};
 
 //DUMB ONE TIME USE VARIABLE
 int playerDied = 0;
-
+int flag = 1; //for display while loop
 
 
 //////////////////////////////////////////////////////////////////////ITEM VARS
@@ -317,11 +325,11 @@ struct player
 struct enemy
 {
 	//names
-	string name[100] = { "" }; //npc name
+	string name[1000] = { "" }; //npc name
 	//health
-	int hp[100]{ 0 };
-	int maxhp[100]{ 0 };
-	int bd[100][10]{ 0 }; //2 is healthy, 1 is injured 0 is gone 
+	int hp[1000]{ 0 };
+	int maxhp[1000]{ 0 };
+	int bd[1000][10]{ 0 }; //2 is healthy, 1 is injured 0 is gone 
 	// [0] head
 	// [1] torso
 	// [2] left arm
@@ -329,21 +337,23 @@ struct enemy
 	// [4] left leg
 	// [5] right leg
 	//skills
-	int lvl[100]{ 0 };
-	int strength[100]{ 0 };
-	int dexterity[100]{ 0 };
-	int intelligence[100]{ 0 };
-	int wisdom[100]{ 0 };
-	int charisma[100]{ 0 };
-	int mHand[100]{ 0 };
+	int lvl[1000]{ 0 };
+	int strength[1000]{ 0 };
+	int dexterity[1000]{ 0 };
+	int intelligence[1000]{ 0 };
+	int wisdom[1000]{ 0 };
+	int charisma[1000]{ 0 };
+	int mHand[1000]{ 0 };
 	//possessions
-	int wpn[100]{ 0 };
+	int wpn[1000]{ 0 };
 	//location
-	int x[100]{ 0 };
-	int y[100]{ 0 };
-	int di[100]{ 0 }; //distance from player
-	int av[100]{ 0 }; //0 if off screen, 1 if on screen, 2 if in range
-	int pr[100]{ 0 }; //this is priority as in how close to player
+	int x[1000]{ 0 };
+	int y[1000]{ 0 };
+	int di[1000]{ 0 }; //distance from player
+	int av[1000]{ 0 }; //0 if off screen, 1 if on screen, 2 if in range
+	int pr[1000]{ 0 }; //this is priority as in how close to player
+	//visuals
+	int state[1000]{ 0 }; //1 for sees player 2 for hears sound 3 for wandering
 };
 
 //player sf{ "sebastian", "fournier", "sebbie", 20, 20, 10, 10, 10, 10, 10 };
@@ -431,7 +441,8 @@ int init()
 	mc.wisdom = 10;
 	mc.charisma = 10;
 	/////////////////////////ENTITIES
-	initEnemy("RANGER", 10, 5, 10, 3, 2, 225, 225, 15);
+	initEnemy("ZOMBIE", 10, 5, 10, 3, 2, 225, 225, 15);
+	initEnemy("ZOMBIE", 10, 5, 10, 3, 2, 299, 101, 500);
 	/*initEnemy("RANGER", 10, 5, 10, 3, 2, 225, 224, 1);
 	initEnemy("RANGER", 10, 5, 10, 3, 2, 225, 223, 1);
 	initEnemy("RANGER", 10, 5, 10, 3, 2, 226, 223, 1);
@@ -477,11 +488,10 @@ int display()
 	tp(xh, yh);
 	
 	
-	int flag = 1;
+	
 	while (flag) {
-		if (mc.hp <= 0) {
-			deathlol();
-		}
+		
+		
 		if (killed) {
 			int toimp;
 			system("CLS");
@@ -504,15 +514,17 @@ int display()
 		}
 		int didPlayerGetInjured = 0;
 		sym(10, 1);
-		if (!invats) {
+		if (!invats && !inInventory) {
+			//I think enemies move while in inventory
+			tick++; //moves time foreward
+			if (tickWhenNoise - tick == 500) {
+				sndx = 0;
+				sndy = 0;
+			}
 			for (int w = 0; w <= cn; w++) { 
 				//updates enemies
 				if (ph.hp[w] > 0) {
 					moveC(w);
-					if ((ph.x[w] - mc.x <= 1) && (ph.y[w] - mc.y <= 1)) {
-						mc.hp -= 5;
-						didPlayerGetInjured = 1;
-					}
 				}
 			}
 			//reloads
@@ -619,18 +631,24 @@ int display()
 			//cout << " " + range[gunNum];
 			//cout << " " + charNum;
 			cout << " selen:" << selen;
+			//cout << " enemy1x: " << ph.x[1] - mc.x;
+			cout << " tick:" << tick;
 		}
-		for (int s = 1; s <= 5; s++) {
+		for (int s = 1; s <= cn; s++) {
 			int d = ph.x[s] - mc.x;
 			int f = ph.y[s] - mc.y;
 			d = abs(d);
 			f = abs(f);
 			if (d <= 1 && f <= 1 && ph.hp[s] > 0) {
 				goToCombat = s;
+				//if ((ph.x[w] - mc.x <= 1) && (ph.y[w] - mc.y <= 1)) {
+				mc.hp -= 5;
+				//didPlayerGetInjured = 1;
+				//}
 			}
 		}
 		if (goToCombat) {
-			//tx("ENTERING COMBAT");
+			tx("INJURED");
 			//sym(10, 1);
 			goToCombat = 0;
 		}
@@ -771,6 +789,9 @@ int display()
 		else {
 			flag = 0;
 		}
+		if (mc.hp <= 0) {
+			deathlol();
+		}
 	}
 	return 0;
 }
@@ -785,6 +806,7 @@ int header()
 	//player health
 
 	if (mc.hp < mc.maxhp) {
+		if (mc.hp < 0) mc.hp = 0; //sets hp to zero 
 		float num = (float)mc.hp / mc.maxhp;
 		int relativeHealth = (float)num * xmax * 2;
 		sym(176, (xmax - relativeHealth / 2));
@@ -848,7 +870,7 @@ int header()
 }
 void loadScreen()
 {
-	string esbbbb = "load" + to_string(r(1, 10)) + ".txt";
+	string esbbbb = "load" + to_string(r(1, 20)) + ".txt";
 	std::ifstream f(esbbbb);
 
 	if (f.is_open())
@@ -1084,6 +1106,11 @@ int invChose()
 int fire() //shoots the thing
 {
 	endist();
+
+	sndx = mc.x;
+	sndy = mc.y;
+	tickWhenNoise = tick; //noise calcsss
+
 	PlaySound(TEXT("boom1.wav"), NULL, SND_ASYNC); //plays gunshot
 	firing = 1;
 	if (bulletsLeft[ammo[gunNum]]) {
@@ -1275,7 +1302,77 @@ int vis() //combat visuals
 void moveC(int i)
 {
 	int o = r(1, 4);
-	switch (o) {
+	int u = r(1, 4);
+	int e = r(1, 2);
+	int a = r(1, 2);
+	if (ph.di[i] <= 10 && u != 1) {
+		switch (e) {
+		case 1:
+			if (ph.y[i] > mc.y && !coli("down", i)) {
+				ph.y[i]--;
+			}
+			else if (ph.y[i] < mc.y && !coli("up", i)) {
+				ph.y[i]++;
+			}
+			else if (ph.x[i] > mc.x && !coli("left", i)) {
+				ph.x[i]--;
+			}
+			else if (ph.x[i] < mc.x && !coli("right", i)) {
+				ph.x[i]++;
+			}
+			break;
+		case 2:
+			if (ph.x[i] < mc.x && !coli("right", i)) {
+				ph.x[i]++;
+			}
+			else if (ph.x[i] > mc.x && !coli("left", i)) {
+				ph.x[i]--;
+			}
+			else if (ph.y[i] < mc.y && !coli("up", i)) {
+				ph.y[i]++;
+			}
+			else if (ph.y[i] > mc.y && !coli("down", i)) {
+				ph.y[i]--;
+			}
+			break;
+		}
+		ph.state[i] = 1;
+	}
+	else if (sndx && sndx != ph.x[i] && sndy != ph.y[i] && u!= 1) {
+		switch (a) {
+		case 1:
+			if (ph.y[i] > sndy && !coli("down", i)) {
+				ph.y[i]--;
+			}
+			else if (ph.y[i] < sndy && !coli("up", i)) {
+				ph.y[i]++;
+			}
+			else if (ph.x[i] > sndx && !coli("left", i)) {
+				ph.x[i]--;
+			}
+			else if (ph.x[i] < sndx && !coli("right", i)) {
+				ph.x[i]++;
+			}
+			break;
+		case 2:
+			if (ph.x[i] < sndx && !coli("right", i)) {
+				ph.x[i]++;
+			}
+			else if (ph.x[i] > sndx && !coli("left", i)) {
+				ph.x[i]--;
+			}
+			else if (ph.y[i] < sndy && !coli("up", i)) {
+				ph.y[i]++;
+			}
+			else if (ph.y[i] > sndy && !coli("down", i)) {
+				ph.y[i]--;
+			}
+			break;
+		}
+		ph.state[i] = 2;
+	}
+	else { 
+		switch (o) {
 		case 1:
 			if (!coli("up", i)) ph.y[i]++;
 			break;
@@ -1288,8 +1385,10 @@ void moveC(int i)
 		case 4:
 			if (!coli("right", i)) ph.x[i]++;
 			break;
+		}
+		ph.state[i] = 3;
 	}
-	
+	endist();
 }
 int dsplyE() 
 {
@@ -1318,7 +1417,15 @@ int dsplyE()
 			return 1;
 		}
 		else if (u == 1) {
-			cout << "!!";
+			if (ph.state[i] == 3) {
+				cout << "ZZ";
+			}
+			else if (ph.state[i] == 2) {
+				cout << "??";
+			}
+			else if (ph.state[i] == 1) {
+				cout << "!!";
+			}
 			return 1;
 		}
 		else if (u == 2) {
@@ -2343,16 +2450,10 @@ void musicPlayer() //play music
 void deathlol()
 {
 	system("CLS");
-	Sleep(3000);
-	std::ifstream f("end1.txt");
-
-	if (f.is_open())
-		std::cout << f.rdbuf();
-	Sleep(100);
-	system("CLS");
 	sym(10, 14);
 	tx("YOU DIED");
-	sym(10, 10);
-	Sleep(10000);
+	sym(10, 15);
+	//Sleep(10000);
 	playerDied = 1;
+	flag = 0;
 }

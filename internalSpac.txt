@@ -372,4 +372,9 @@ made death screen
 removed "ENTERING COMBAT" dialogue
 added damage flash
 made enemies do damage if they are close to the player
-/made zombies attracted to noise
+
+added 10 more loading screens 20 total now
+
+made zombies hunt player within 10 tiles
+made zombies attracted to noise, there is a tick counter maybe make it different for different noises
+fixed death screen, now it shows up and game ends
