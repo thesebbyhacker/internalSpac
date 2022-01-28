@@ -21,7 +21,6 @@ MAKE LEVELLING SYSTEM
 MAKE ENTITY SPAWNER AND HORDE MECHANICS
 MAKE NPCS
 melee combat add it eventually but bro I need a break from combat lol
-make z levels
 redo skills, maybe get rid of the combat related ones
 all skills out of 100 I think
 get some dismemberment
@@ -30,8 +29,10 @@ make function for trains
 make a controls page in game once controls are finalized
 random generated sentences
 make loot pools for enemy types
-make proper load function after everything else is done, should include tick variable
+make proper load function after everything else is done, should include tick variable (for time?)
 make death screen have load option
+make notes/signs
+
 */
 ///////////////////////////////////////////////////////////////////////STUFF ADDED
 /*
@@ -45,11 +46,12 @@ make death screen have load option
 /////////////////////////////////////////////////////////////////////FUNCTION DECS
 int init();
 int initEnemy(
-	string name1, 
-	int strength1, 
-	int dexterity1, 
-	int intelligence1, 
-	int mainHand1, 
+	string name1,
+	int strength1, //determines damage dealt to player upon contact
+	int enhp1,
+	//int dexterity1, 
+	//int intelligence1, 
+	//int mainHand1, 
 	int wpn1, 
 	int x1, 
 	int y1, 
@@ -302,7 +304,7 @@ struct player
 	//health
 	int hp = 0;
 	int maxhp = 0;
-	int bd[10] { 0 }; //2 is healthy, 1 is injured 0 is gone 
+	//int bd[10] { 0 }; //2 is healthy, 1 is injured 0 is gone 
 	// [0] head
 	// [1] torso
 	// [2] left arm
@@ -310,14 +312,14 @@ struct player
 	// [4] left leg
 	// [5] right leg
 	//skills
-	int lvl = 0;
-	int strength = 0;
-	int dexterity = 0;
-	int intelligence = 0;
-	int wisdom = 0;
-	int charisma = 0;
-	int mHand = 0; //dominant hand for skill checks, 2 is left hand 3 is right hand
-	int mLeg = 0; //dominant leg i know this sounds dumb but its for running away and stuff
+	//int lvl = 0;
+	//int strength = 0;
+	//int dexterity = 0;
+	//int intelligence = 0;
+	//int wisdom = 0;
+	//int charisma = 0;
+	//int mHand = 0; //dominant hand for skill checks, 2 is left hand 3 is right hand
+	//int mLeg = 0; //dominant leg i know this sounds dumb but its for running away and stuff
 	//location
 	int x = 0;
 	int y = 0;
@@ -329,7 +331,7 @@ struct enemy
 	//health
 	int hp[1000]{ 0 };
 	int maxhp[1000]{ 0 };
-	int bd[1000][10]{ 0 }; //2 is healthy, 1 is injured 0 is gone 
+	//int bd[1000][10]{ 0 }; //2 is healthy, 1 is injured 0 is gone 
 	// [0] head
 	// [1] torso
 	// [2] left arm
@@ -337,13 +339,13 @@ struct enemy
 	// [4] left leg
 	// [5] right leg
 	//skills
-	int lvl[1000]{ 0 };
+	//int lvl[1000]{ 0 };
 	int strength[1000]{ 0 };
-	int dexterity[1000]{ 0 };
-	int intelligence[1000]{ 0 };
-	int wisdom[1000]{ 0 };
-	int charisma[1000]{ 0 };
-	int mHand[1000]{ 0 };
+	//int dexterity[1000]{ 0 };
+	//int intelligence[1000]{ 0 };
+	//int wisdom[1000]{ 0 };
+	//int charisma[1000]{ 0 };
+	//int mHand[1000]{ 0 };
 	//possessions
 	int wpn[1000]{ 0 };
 	//location
@@ -426,23 +428,9 @@ int init()
 	mc.nName = "JOE";
 	mc.hp = 20;
 	mc.maxhp = 20;
-	mc.bd[0] = 2;	
-	mc.bd[1] = 2;
-	mc.bd[2] = 2;
-	mc.bd[3] = 2;
-	mc.bd[4] = 2;
-	mc.bd[5] = 2;
-	mc.mHand = 3;
-	mc.mLeg = 4;
-	mc.lvl = 1;
-	mc.strength = 10;
-	mc.dexterity = 10;
-	mc.intelligence = 10;
-	mc.wisdom = 10;
-	mc.charisma = 10;
 	/////////////////////////ENTITIES
-	initEnemy("ZOMBIE", 10, 5, 10, 3, 2, 225, 225, 15);
-	initEnemy("ZOMBIE", 10, 5, 10, 3, 2, 299, 101, 500);
+	initEnemy("ZOMBIE", 10, 10, 2, 225, 225, 15);
+	initEnemy("ZOMBIE", 10, 10, 2, 299, 101, 500);
 	/*initEnemy("RANGER", 10, 5, 10, 3, 2, 225, 224, 1);
 	initEnemy("RANGER", 10, 5, 10, 3, 2, 225, 223, 1);
 	initEnemy("RANGER", 10, 5, 10, 3, 2, 226, 223, 1);
@@ -849,8 +837,9 @@ int header()
 	}
 	*/
 	string testicle;
-	string balls = mc.nName + " LVL " + to_string(mc.lvl) + " =VS= " + ph.name[enemyNum] + " LVL " + to_string(ph.lvl[enemyNum]);
-	string penis = "HEAD:" + to_string(ph.bd[enemyNum][0]) + " TORSO:" + to_string(ph.bd[enemyNum][1]) + " LEFT ARM:" + to_string(ph.bd[enemyNum][2]) + " RIGHT ARM:" + to_string(ph.bd[enemyNum][3]) + " LEFT LEG:" + to_string(ph.bd[enemyNum][4]) + " RIGHT LEG:" + to_string(ph.bd[enemyNum][5]);
+	string balls = mc.nName + " =VS= " + ph.name[enemyNum];
+	string penis;
+	//string penis = "HEAD:" + to_string(ph.bd[enemyNum][0]) + " TORSO:" + to_string(ph.bd[enemyNum][1]) + " LEFT ARM:" + to_string(ph.bd[enemyNum][2]) + " RIGHT ARM:" + to_string(ph.bd[enemyNum][3]) + " LEFT LEG:" + to_string(ph.bd[enemyNum][4]) + " RIGHT LEG:" + to_string(ph.bd[enemyNum][5]);
 	//string ballHair = "RANGE: " + ab2;
 	if (!reloadNum) {
 		testicle = "WEAPON: " + nName[gunNum] + " " + to_string(bulletsLeft[ammo[gunNum]]) + "/" + to_string(magSize[ammo[gunNum]]) + " " + ab1;
@@ -1111,7 +1100,7 @@ int fire() //shoots the thing
 	sndy = mc.y;
 	tickWhenNoise = tick; //noise calcsss
 
-	PlaySound(TEXT("boom1.wav"), NULL, SND_ASYNC); //plays gunshot
+	PlaySound(TEXT("fire1.wav"), NULL, SND_ASYNC); //plays gunshot
 	firing = 1;
 	if (bulletsLeft[ammo[gunNum]]) {
 		bulletsLeft[ammo[gunNum]] -= 1;
@@ -1459,7 +1448,7 @@ int dsplyE()
 
 
 
-int check(string skill, int score, int bdypt)
+/*int check(string skill, int score, int bdypt)
 {
 	int passed = 0;
 	int mod = 0;
@@ -1533,7 +1522,7 @@ int check(string skill, int score, int bdypt)
 			return 0;
 		}
 	}
-}
+}*/
 
 int sel(string top, int chnum, string exitable, string ch1, string ch2, string ch3, string ch4, string ch5, string ch6, string ch7, string ch8, string ch9, string ch10)
 {
@@ -1668,36 +1657,36 @@ int menu()
 	int loc = 1;
 	int flag = 1;
 	int select[11];
-	while (sel("MENU", 10, "YES", "INVENTORY", "SET DISPLAY SIZE (DEPRECIATED)", "TP HOME", "TELEPORT", "CREATE CHARACTER", "VIEW CHARACTER", "SAVE", "LOAD", "CONTROLS", "QUIT")) {
+	while (sel("MENU", 10, "YES", "INVENTORY", "TP HOME", "TELEPORT", "SAVE", "LOAD", "CONTROLS", "QUIT")) {
 		
 		if (chpicked == 1) {
 			inv();
 		}
-		else if (chpicked == 2) {
+		/*else if (chpicked == 2) {
 			setDisplaySize();
-		}
-		else if (chpicked == 3) {
+		}*/
+		else if (chpicked == 2) {
 			tp(xh, xh);
 		}
-		else if (chpicked == 4) {
+		else if (chpicked == 3) {
 			teleport();
 		}
-		else if (chpicked == 5) {
+		/*else if (chpicked == 5) {
 			createCharacter();
-		}
-		else if (chpicked == 6) {
+		}*/
+		/*else if (chpicked == 6) { //I want to bring back view character but instead of skills show other basic stuff
 			viewCharacter();
-		}
-		else if (chpicked == 7) {
+		}*/
+		else if (chpicked == 4) {
 			saveGame();
 		}
-		else if (chpicked == 8) {
+		else if (chpicked == 5) {
 			loadGame();
 		}
-		else if (chpicked == 9) {
+		else if (chpicked == 6) {
 			controls();
 		}
-		else if (chpicked == 10) {
+		else if (chpicked == 7) {
 			exit(0);
 		}
 	}
@@ -1740,7 +1729,7 @@ void teleport()
 	cin >> temp2;
 	tp(temp1, temp2);
 }
-void createCharacter()
+/*void createCharacter()
 {
 	system("CLS");
 	txt("CREATE CHARACTER", 205);
@@ -1860,7 +1849,7 @@ void viewCharacter()
 	cout << "CHARISMA: " << mc.charisma;
 	sym(10, 1);
 	ans = _getch();
-}
+}*/
 void saveGame()
 {
 	system("CLS");
@@ -2260,7 +2249,7 @@ int save()
 	file << mc.x << endl << mc.y << endl;
 	file << mc.fName << endl << mc.lName << endl << mc.nName << endl;
 	file << mc.hp << endl << mc.maxhp << endl;
-	file << mc.lvl << endl << mc.strength << endl << mc.dexterity << endl << mc.intelligence << endl << mc.wisdom << endl << mc.charisma << endl;
+	//file << mc.lvl << endl << mc.strength << endl << mc.dexterity << endl << mc.intelligence << endl << mc.wisdom << endl << mc.charisma << endl;
 	file << gunNum << endl;
 
 	file.close();
@@ -2299,6 +2288,7 @@ int load()
 	file >> a;
 	mc.maxhp = a;
 
+	/*
 	gotoLine(file, 8);
 	file >> a;
 	mc.lvl = a;
@@ -2318,8 +2308,9 @@ int load()
 	gotoLine(file, 13);
 	file >> a;
 	mc.charisma = a;
+	*/
 
-	gotoLine(file, 14);
+	gotoLine(file, 8);
 	file >> a;
 	gunNum = a;
 
@@ -2349,26 +2340,16 @@ fstream& gotoLine(fstream& file, unsigned int num) {
 	return file;
 }
 
-int initEnemy(string name1, int strength1, int dexterity1, int intelligence1, int mainHand1, int wpn1, int x1, int y1, int num1)//this will create chars and items
+int initEnemy(string name1, int strength1, int enhp1, int wpn1, int x1, int y1, int num1)//this will create chars and items
 {
 	for (int num3 = 1; num3 <= num1; num3++) {
 		ph.name[cn] = name1;
-		ph.bd[cn][0] = 2; //head
-		ph.bd[cn][1] = 2; //torso
-		ph.bd[cn][2] = 2; //left arm
-		ph.bd[cn][3] = 2; //right arm
-		ph.bd[cn][4] = 2; //left leg
-		ph.bd[cn][5] = 2; //right leg
-
+		
 		ph.strength[cn] = strength1;
-		ph.dexterity[cn] = dexterity1;
-		ph.intelligence[cn] = intelligence1;
-		ph.lvl[cn] = (strength1 + dexterity1 + intelligence1) / 3;
-		ph.maxhp[cn] = strength1 + ph.lvl[cn];
+		ph.maxhp[cn] = enhp1;
 		ph.hp[cn] = ph.maxhp[cn];
 
 		ph.wpn[cn] = wpn1;
-		ph.mHand[cn] = mainHand1;
 
 		ph.x[cn] = x1;
 		ph.y[cn] = y1;

@@ -46,13 +46,13 @@ mega fauna yesss
 
 
 gameplay=====================================================================================
-make a full limb count for every enemy, and mc, so they can lose limbs
-steal dnd combat
-have rpg elements like strength, agility, etc
+X make a full limb count for every enemy, and mc, so they can lose limbs
+X steal dnd combat
+X have rpg elements like strength, agility, etc
 have a pet with stats and all
 guns have to be loaded, mags have to be loaded, guns can jam
 make guns have mods you can add
-add skill specific to each weapon, weapon 
+X add skill specific to each weapon, weapon 
 Zombies disappear in the day and in certain places they horde at night they seek shelter during the day, so they flood into buildings and stuff
 If one zombie starts following you, any others near will also start tracking 
 Each horde will have one zombie who they all follow his movements maybe
@@ -378,3 +378,6 @@ added 10 more loading screens 20 total now
 made zombies hunt player within 10 tiles
 made zombies attracted to noise, there is a tick counter maybe make it different for different noises
 fixed death screen, now it shows up and game ends
+
+changed gunshot noise
+removed skills skill checks and body parts, I want this to be more of a puzzle game 
